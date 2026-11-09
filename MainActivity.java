@@ -18,8 +18,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
-    private static final String START_URL = "https://6aef1d790e2bb14981899c7f--jovial-twilight-3e4d54.netlify.app/";
+private static final String START_URL = "https://jovial-twilight-3e4d54.netlify.app/";
     private static final int FILE_CHOOSER_REQUEST = 4102;
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
@@ -47,20 +46,25 @@ public class MainActivity extends Activity {
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
 
         webView.setWebViewClient(new WebViewClient() {
-            @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Uri uri = request.getUrl();
-                String host = uri.getHost();
-                if ("https".equals(uri.getScheme()) && host != null &&
-                    (host.equals("6aef1d790e2bb14981899c7f--jovial-twilight-3e4d54.netlify.app") || host.equals("jovial-twilight-3e4d54.netlify.app") || host.equals("cdn.jsdelivr.net") || host.equals("cdnjs.cloudflare.com") || host.equals("crpyjbecbjpeegcjxzqc.supabase.co"))) {
-                    return false;
-                }
-                if ("https".equals(uri.getScheme()) || "mailto".equals(uri.getScheme()) || "tel".equals(uri.getScheme())) {
-                    try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); } catch (ActivityNotFoundException ignored) {}
-                    return true;
-                }
-                return true;
-            }
-        });
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        Uri uri = request.getUrl();
+        String scheme = uri.getScheme();
+
+        if ("https".equals(scheme) || "http".equals(scheme)) {
+            return false;
+        }
+
+        if ("mailto".equals(scheme) || "tel".equals(scheme)) {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            } catch (ActivityNotFoundException ignored) {}
+            return true;
+        }
+
+        return true;
+    }
+});
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
